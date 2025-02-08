@@ -1,6 +1,8 @@
 import pygame
 from constants import *
 from player import Player # Don't need to import Circle Shape here since Player imports it already.
+from asteroidfield import AsteroidField 
+from asteroid import Asteroid
 
 def main():
 
@@ -10,23 +12,28 @@ def main():
     clock = pygame.time.Clock() # Sets a clock object
     dt = 0
 
-    updateable = pygame.sprite.Group()
+    updatable = pygame.sprite.Group()
     drawable = pygame.sprite.Group()
-    Player.containers = (updateable, drawable)
-    
+    Player.containers = (updatable, drawable)
+
     player = Player(SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2) # sets a player object from Player class
 
+    asteroids = pygame.sprite.Group()
+    Asteroid.containers = (asteroids, updatable, drawable)
+    AsteroidField.containers = updatable 
+    asteroidfield = AsteroidField()
 
     while True:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 return
 
-        updateable.update(dt) ## update the players movement and rotation with a delay of dt ms
+        updatable.update(dt) ## update the players movement and rotation with a delay of dt ms
 
         screen.fill("black")
 
         for obj in drawable: # for every object that is in the drawable group, it draws it on the screen
+            
             obj.draw(screen)
 
         pygame.display.flip()

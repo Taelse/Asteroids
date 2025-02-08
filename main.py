@@ -1,59 +1,59 @@
+import sys
 import pygame
 from constants import *
-from player import Player # Don't need to import Circle Shape here since Player imports it already.
-from asteroidfield import AsteroidField 
+from player import Player
 from asteroid import Asteroid
+from asteroidfield import AsteroidField
+from shot import Shot
+
 
 def main():
-
     pygame.init()
-    screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT)) # Sets a screen object
-
-    clock = pygame.time.Clock() # Sets a clock object
-    dt = 0
+    screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
+    clock = pygame.time.Clock()
 
     updatable = pygame.sprite.Group()
     drawable = pygame.sprite.Group()
+    asteroids = pygame.sprite.Group()
+    shots = pygame.sprite.Group()
+
+    Asteroid.containers = (asteroids, updatable, drawable)
+    Shot.containers = (shots, updatable, drawable)
+    AsteroidField.containers = updatable
+    asteroid_field = AsteroidField()
+
     Player.containers = (updatable, drawable)
 
-    player = Player(SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2) # sets a player object from Player class
+    player = Player(SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2)
 
-    asteroids = pygame.sprite.Group()
-    Asteroid.containers = (asteroids, updatable, drawable)
-    AsteroidField.containers = updatable 
-    asteroidfield = AsteroidField()
+    dt = 0
 
     while True:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 return
 
-        updatable.update(dt) ## update the players movement and rotation with a delay of dt ms
+        updatable.update(dt)
+
+        for asteroid in asteroids:
+            if asteroid.collides_with(player):
+                print("Game over!")
+                sys.exit()
+
+            for shot in shots:
+                if asteroid.collides_with(shot):
+                    shot.kill()
+                    asteroid.split()
 
         screen.fill("black")
 
-        for obj in drawable: # for every object that is in the drawable group, it draws it on the screen
-            
+        for obj in drawable:
             obj.draw(screen)
 
         pygame.display.flip()
 
-        dt = clock.tick(60) / 1000 ## sets a delta variable at 60ms
-        
-        
-            
-
-
-
-
-
-
-
-
-
-
-
-
+        # limit the framerate to 60 FPS
+        dt = clock.tick(60) / 1000
 
 
 if __name__ == "__main__":
